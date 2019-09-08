@@ -12,7 +12,7 @@
   [bminusS (l : ArithS) (r : ArithS)]
   [uminusS (e : ArithS)]
   [multS   (l : ArithS) (r : ArithS)]
-  [divC    (l : ArithS) (r : ArithS)])
+  [divS    (l : ArithS) (r : ArithS)])
 
 
 (define (desugar [as : ArithS]) : ArithC  
