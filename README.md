@@ -10,5 +10,5 @@ Para realização dos testes, basta digitar `./tests.sh` na pasta que contem tod
 O teste é composto da seguinte forma:
 
 >Teste "número do teste"
-cat "teste que será feito" (para mostrar qual teste está sendo feito)
-"código para execução do teste"
+>cat "teste que será feito" (para mostrar qual teste está sendo feito)
+>"código para execução do teste"
