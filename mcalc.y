@@ -1,4 +1,4 @@
-/* Calculadora infixa */
+ /* Calculadora infixa */
 
 %{
 #include <stdio.h>

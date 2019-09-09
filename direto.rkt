@@ -4,7 +4,8 @@
   [numC  (n : number)]
   [plusC (l : ArithC) (r : ArithC)]
   [multC (l : ArithC) (r : ArithC)]
-  [divC  (l : ArithC) (r : ArithC)])
+  [divC  (l : ArithC) (r : ArithC)]
+  [ifC   (c : ArithC) (s : ArithC) (n : ArithC)])
 
 (define-type ArithS
   [numS    (n : number)]
@@ -12,25 +13,29 @@
   [bminusS (l : ArithS) (r : ArithS)]
   [uminusS (e : ArithS)]
   [multS   (l : ArithS) (r : ArithS)]
-  [divS    (l : ArithS) (r : ArithS)])
+  [divS    (l : ArithS) (r : ArithS)]
+  [ifS     (c : ArithS) (s : ArithS) (n : ArithS)])
 
 
 (define (desugar [as : ArithS]) : ArithC  
   (type-case ArithS as
-    [numS    (n)   (numC n)]
-    [plusS   (l r) (plusC (desugar l) (desugar r))] 
-    [multS   (l r) (multC (desugar l) (desugar r))]
-    [bminusS (l r) (plusC (desugar l) (multC (numC -1) (desugar r)))]
-    [uminusS (e)   (multC (numC -1) (desugar e))]
-    [divS    (l r) (divC  (desugar l) (desugar r))]))
+    [numS    (n)     (numC n)]
+    [plusS   (l r)   (plusC (desugar l) (desugar r))] 
+    [multS   (l r)   (multC (desugar l) (desugar r))]
+    [bminusS (l r)   (plusC (desugar l) (multC (numC -1) (desugar r)))]
+    [uminusS (e)     (multC (numC -1) (desugar e))]
+    [divS    (l r)   (divC  (desugar l) (desugar r))]
+    [ifS     (c s n) (ifC   (desugar c) (desugar s) (desugar n))]))
 
 
 (define (interp [a : ArithC]) : number
   (type-case ArithC a
-    [numC (n) n]
-    [plusC (l r) (+ (interp l) (interp r))]
-    [multC (l r) (* (interp l) (interp r))]
-    [divC  (l r) (/ (interp l) (interp r))]))
+    [numC  (n) n]
+    [plusC (l r)   (+ (interp l) (interp r))]
+    [multC (l r)   (* (interp l) (interp r))]
+    [divC  (l r)   (/ (interp l) (interp r))]
+    [ifC   (c s n) (if (zero? (interp c))
+                              (interp n) (interp s))]))
 
 
 (define (parse [s : s-expression]) : ArithS
@@ -39,14 +44,15 @@
     [(s-exp-list? s)
      (let ([sl (s-exp->list s)])
        (case (s-exp->symbol (first sl))
-         [(+) (plusS (parse (second sl)) (parse (third sl)))]
-         [(*) (multS (parse (second sl)) (parse (third sl)))]
-         [(/) (divS  (parse (second sl)) (parse (third sl)))]
-         [(-) (bminusS (parse (second sl)) (parse (third sl)))]
+         [(+)  (plusS   (parse (second sl)) (parse (third sl)))]
+         [(*)  (multS   (parse (second sl)) (parse (third sl)))]
+         [(/)  (divS    (parse (second sl)) (parse (third sl)))]
+         [(-)  (bminusS (parse (second sl)) (parse (third sl)))]
          ; para o parser precisamos um sinal negativo...
-         [(~) (uminusS (parse (second sl)))]
+         [(~)  (uminusS (parse (second sl)))]
+         [(if) (ifS     (parse (second sl))
+                        (parse (third sl)) (parse (fourth sl)))]
          [else (error 'parse "invalid list input")]))]
     [else (error 'parse "invalid input")]))
-
 
 (interp (desugar (parse (read))))
