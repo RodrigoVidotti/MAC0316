@@ -2,7 +2,7 @@
 
 Projeto desenvolvido para aprofundar os conhecimentos da disciplina Conceitos de Linguagens de Programação, do curso de Ciência da Computação(BCC), do Intituto de Matemática e Estatística(IME) da Universidade de São Paulo(USP) 
 
-Autores: João Pedro Turri - ; 
+Autores: João Pedro Turri - 6805993; 
          Rodrigo Vidotti de Souza - 10687896; 
          Vitor Carvalho de Melo - 10723753.
 
