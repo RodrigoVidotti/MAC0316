@@ -6,7 +6,7 @@ Autores: João Pedro Turri, Rodrigo Vidotti de Souza, Vitor Carvalho de Melo.
 
 ## Testes
 
-Para realização dos testes, basta digitar `./tests.sh` na pasta que contem todos os arquivos. O teste é composto da seguinte forma:
+Para realização dos testes, basta compilar o projeto digitando o comando `make` e em seguida digitar `./tests.sh` na pasta que contem todos os arquivos. O teste é composto da seguinte forma:
 
 >Teste "número do teste"
 >
