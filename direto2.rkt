@@ -34,6 +34,7 @@
     [appS    (fun arg) (appC fun (desugar arg))] ; fun é um symbol, não precisa de desugar 
     [plusS   (l r)   (plusC (desugar l) (desugar r))] 
     [multS   (l r)   (multC (desugar l) (desugar r))]
+    [divS   (l r)   (divC (desugar l) (desugar r))]
     [bminusS (l r)   (plusC (desugar l) (multC (numC -1) (desugar r)))]
     [uminusS (e)     (multC (numC -1) (desugar e))]
     [divS    (l r)   (divC  (desugar l) (desugar r))]
@@ -49,6 +50,7 @@
 		   	  	 	   	; arruma o argumento
     [plusC (l r) (plusC (subst valor isso l) (subst valor isso r))]
     [multC (l r) (multC (subst valor isso l) (subst valor isso r))]
+    [divC (l r) (divC (subst valor isso l) (subst valor isso r))]
     [ifC (c s n) (ifC   (subst valor isso c) 
 			(subst valor isso s) (subst valor isso n))]
   ))
@@ -68,6 +70,7 @@
     [idC (_) (error 'interp "não deveria encontrar isso!")]
     [plusC (l r) (+ (interp l fds) (interp r fds))]
     [multC (l r) (* (interp l fds) (interp r fds))]
+    [divC (l r) (* (interp l fds) (interp r fds))]
     [ifC (c s n) (if (zero? (interp c fds)) (interp n fds) (interp s fds))]
     ))
 
@@ -89,6 +92,7 @@
        (case (s-exp->symbol (first sl))
          [(+) (plusS (parse (second sl)) (parse (third sl)))]
          [(*) (multS (parse (second sl)) (parse (third sl)))]
+	 [(/) (divS (parse (second sl)) (parse (third sl)))]
          [(-) (bminusS (parse (second sl)) (parse (third sl)))]
          [(~) (uminusS (parse (second sl)))]
          [(call) (appS (s-exp->symbol (second sl)) (parse (third sl)))]
@@ -106,4 +110,4 @@
                     [fdC 'narciso  'narciso (multC (idC 'narciso) (numC 1000))]
                     ))
 
-(interp (desugar (parse (read))))
+(interp (desugar (parse (read))) biblioteca)
