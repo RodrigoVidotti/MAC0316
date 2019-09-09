@@ -1,20 +1,6 @@
 #lang plai-typed
 
-(define-type ArithC
-  [numC  (n : number)]
-  [plusC (l : ArithC) (r : ArithC)]
-  [multC (l : ArithC) (r : ArithC)]
-  [divC  (l : ArithC) (r : ArithC)]
-  [ifC   (c : ArithC) (s : ArithC) (n : ArithC)])
 
-(define-type ArithS
-  [numS    (n : number)]
-  [plusS   (l : ArithS) (r : ArithS)]
-  [bminusS (l : ArithS) (r : ArithS)]
-  [uminusS (e : ArithS)]
-  [multS   (l : ArithS) (r : ArithS)]
-  [divS    (l : ArithS) (r : ArithS)]
-  [ifS     (c : ArithS) (s : ArithS) (n : ArithS)])
 
 (define-type ExprC
   [numC (n : number)]
@@ -22,6 +8,7 @@
   [appC (fun : symbol) (arg : ExprC)] ; aplicação, com o nome da função e o valor do argumento
   [plusC (l : ExprC) (r : ExprC)]
   [multC (l : ExprC) (r : ExprC)]
+  [divC  (l : ExprC) (r : ExprC)]
   [ifC   (condição : ExprC) (sim : ExprC) (não : ExprC)]
   )
 
@@ -36,14 +23,12 @@
   [bminusS (l : ExprS) (r : ExprS)]
   [uminusS (e : ExprS)]
   [multS   (l : ExprS) (r : ExprS)]
+  [divS    (l : ExprS) (r : ExprS)]
   [ifS     (c : ExprS) (s : ExprS) (n : ExprS)]
   )
 
-
-
-
-(define (desugar [as : ArithS]) : ArithC  
-  (type-case ArithS as
+(define (desugar [as : ExprS]) : ExprC  
+  (type-case ExprS as
     [numS    (n)     (numC n)]
     [idS     (s) (idC s)] ; este é fácil
     [appS    (fun arg) (appC fun (desugar arg))] ; fun é um symbol, não precisa de desugar 
@@ -53,34 +38,6 @@
     [uminusS (e)     (multC (numC -1) (desugar e))]
     [divS    (l r)   (divC  (desugar l) (desugar r))]
     [ifS     (c s n) (ifC   (desugar c) (desugar s) (desugar n))]))
-
-
-(define (interp [a : ArithC]) : number
-  (type-case ArithC a
-    [numC  (n) n]
-    [plusC (l r)   (+ (interp l) (interp r))]
-    [multC (l r)   (* (interp l) (interp r))]
-    [divC  (l r)   (/ (interp l) (interp r))]
-    [ifC   (c s n) (if (zero? (interp c))
-                              (interp n) (interp s))]))
-
-
-(define (parse [s : s-expression]) : ArithS
-  (cond
-    [(s-exp-number? s) (numS (s-exp->number s))]
-    [(s-exp-list? s)
-     (let ([sl (s-exp->list s)])
-       (case (s-exp->symbol (first sl))
-         [(+)  (plusS   (parse (second sl)) (parse (third sl)))]
-         [(*)  (multS   (parse (second sl)) (parse (third sl)))]
-         [(/)  (divS    (parse (second sl)) (parse (third sl)))]
-         [(-)  (bminusS (parse (second sl)) (parse (third sl)))]
-         ; para o parser precisamos um sinal negativo...
-         [(~)  (uminusS (parse (second sl)))]
-         [(if) (ifS     (parse (second sl))
-                        (parse (third sl)) (parse (fourth sl)))]
-         [else (error 'parse "invalid list input")]))]
-    [else (error 'parse "invalid input")]))
 
 (define (subst [valor : ExprC] [isso : symbol] [em : ExprC]) : ExprC
   (type-case ExprC em
@@ -122,7 +79,6 @@
                    [(equal? n (fdC-name (first fds))) (first fds)] ; achou!
                    [else (get-fundef n (rest fds))] ; procura no resto
                    )]))
-
 
 ; o parser precisa tratar de chamadas
 (define (parse [s : s-expression]) : ExprS
