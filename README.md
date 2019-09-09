@@ -6,11 +6,18 @@ Autores: João Pedro Turri, Rodrigo Vidotti de Souza, Vitor Carvalho de Melo.
 
 ## Testes
 
-Para realização dos testes, basta digitar `./tests.sh` na pasta que contem todos os arquivos.
-O teste é composto da seguinte forma:
+Para realização dos testes, basta digitar `./tests.sh` na pasta que contem todos os arquivos. O teste é composto da seguinte forma:
 
 >Teste "número do teste"
 >
->cat "teste que será feito" (para mostrar qual teste está sendo feito)
+>cat "teste que será feito"
 >
 >"código para execução do teste"
+
+E é exibido na tela assim:
+
+>Teste "número do teste"
+>
+>"qual teste está sendo feito"
+>
+>"resultado do teste"
