@@ -26,3 +26,6 @@ cat e8 | ./direto
 echo "Teste 9"
 cat e9
 cat e9 | ./direto
+echo "Teste 10"
+cat e10
+cat e10 | ./direto
