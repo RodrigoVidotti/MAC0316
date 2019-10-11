@@ -54,60 +54,48 @@
     [ifS     (c s n) (ifC (desugar c) (desugar s) (desugar n))]
     ))
 
-
 #|
- | O interpretador precisa tratar de substituir o parâmetro pelo valor!
- | Além disso, precisa receber as definições de funções (uma lista)
- | Será necessário procurar a função na lista:
- |
- |       get-fundef : symbol * (listof FunDefC) -> FunDefC
- |
- | e fazer substituição dos symbols
- |
- |       subst : ExprC * symbol * ExprC -> ExprC
- |
+ | O interpretador precisa de uma lista adicional de definições para os símbolos
  |#
 
+(define-type Binding
+      [bind (name : symbol) (val : number)])
 
-; começamos pela última
-; subst :  ExprC * symbol * ExprC -> ExprC
-; ou (subst VALOR ID EXPRESSÃO)
-; Vou manter a ordem do livro, mas vou mudar o nome dos argumentos:
-; subst substitui ISSO por VALOR em EM
-(define (subst [valor : ExprC] [isso : symbol] [em : ExprC]) : ExprC
-  (type-case ExprC em
-    [numC (n) em]   ; nada a substituir, repassa
-    [idC (s) (cond  ; poderia ser 'if', mas existem coisas no futuro...
-               [(symbol=? s isso) valor] ; símbolo, troque
-               [else em])] ; deixa quieto
-    [appC  (f a) (appC f (subst valor isso a))] ; chamada de função 
-		   	  	 	   	; arruma o argumento
-    [plusC (l r) (plusC (subst valor isso l) (subst valor isso r))]
-    [multC (l r) (multC (subst valor isso l) (subst valor isso r))]
-    [divC (l r) (divC (subst valor isso l) (subst valor isso r))]
-    [ifC (c s n) (ifC   (subst valor isso c) 
-			(subst valor isso s) (subst valor isso n))]
-  ))
+; A lista de associações é o environment
+(define-type-alias Env (listof Binding))
+(define mt-env empty)        ; ente pronunciar "mt" em inglês e compare com "empty"
+(define extend-env cons)     ; sorte, cons faz exatamente o que queremos para estender o env
+
+
+; lookup
+(define (lookup [for : symbol] [env : Env]) : number
+       (cond
+            [(empty? env) (error 'lookup "name not found")] ; livre (não definida)
+            [else (cond
+                  [(symbol=? for (bind-name (first env)))   ; achou!
+                                 (bind-val (first env))]
+                  [else (lookup for (rest env))])]))        ; vê no resto
 
 ; Agora o interpretador!
 
-(define (interp [a : ExprC] [fds : (listof FunDefC)]) : number
+
+; interp: todas as chamadas recursivas devem levar em conta o environment
+(define (interp [a : ExprC] [env : Env] [fds : (listof FunDefC)]) : number
   (type-case ExprC a
     [numC (n) n]
-    ; Aplicação de função é que precisa de subst
+    [idC (n) (lookup n env)]
+
     [appC (f a) 
-          (local ([define fd (get-fundef f fds)]) ; pega a definição em fd
-            (interp (subst a                 ; interpreta o resultado de subst
-                           (fdC-arg fd)
-                           (fdC-body fd)
-                           )
+          (local ([define fd (get-fundef f fds)]) 
+            (interp (fdC-body fd)
+                    (extend-env 
+                        (bind (fdC-arg fd) (interp a env fds))
+                        mt-env)              ; novo environment feito do zero!
                     fds))]
-    ; Não devem sobrar idenficadores livres na expressão
-    [idC (_) (error 'interp "não deveria encontrar isso!")]
-    [plusC (l r) (+ (interp l fds) (interp r fds))]
-    [multC (l r) (* (interp l fds) (interp r fds))]
-    [divC (l r) (/ (interp l fds) (interp r fds))]
-    [ifC (c s n) (if (zero? (interp c fds)) (interp n fds) (interp s fds))]
+    [plusC (l r) (+ (interp l env fds) (interp r env fds))]
+    [multC (l r) (* (interp l env fds) (interp r env fds))]
+    [divC  (l r) (/ (interp l env fds) (interp r env fds))]
+    [ifC (c s n) (if (zero? (interp c env fds)) (interp n env fds) (interp s env fds))]
     ))
 
 ; get-fundef
@@ -151,4 +139,4 @@
                     [fdC 'narciso  'narciso (multC (idC 'narciso) (numC 1000))]
                     ))
 
-(interp (desugar (parse (read))) biblioteca)
+(interp (desugar (parse (read))) mt-env biblioteca)
