@@ -11,3 +11,6 @@ cat e15 | ./direto
 echo "Teste 4"
 cat e16
 cat e16 | ./direto
+echo "Teste 5"
+cat e17
+cat e17 | ./direto

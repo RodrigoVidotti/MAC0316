@@ -2,10 +2,10 @@
 
 (define-type ExprC
   [numC  (n : number)]
-  [idC   (s : symbol)]  ; identificador
+  [varC  (s : symbol)] ; não é mais identificador
   [plusC (l : ExprC) (r : ExprC)]
   [multC (l : ExprC) (r : ExprC)]
-  [divC  (l : ExprC) (r : ExprC)]
+  ;[divC  (l : ExprC) (r : ExprC)]
   [lamC (arg : symbol) (body : ExprC)] ; nomes não são mais necessários
   [appC (fun : ExprC) (arg : ExprC)] ; a aplicação recebe uma função
   [ifC   (condição : ExprC) (sim : ExprC) (não : ExprC)]
@@ -16,18 +16,17 @@
 ; inclui funções e variáveis
 (define-type ExprS
   [numS    (n : number)]
-  [idS     (s : symbol)] 
+  [varS     (s : symbol)] 
   [lamS    (arg : symbol) (body : ExprS)] ; muda de acordo
   [appS    (fun : ExprS) (arg : ExprS)] 
   [plusS   (l : ExprS) (r : ExprS)]
   [bminusS (l : ExprS) (r : ExprS)]
   [uminusS (e : ExprS)]
   [multS   (l : ExprS) (r : ExprS)]
-  [divS    (l : ExprS) (r : ExprS)]
+  ;[divS    (l : ExprS) (r : ExprS)]
   [ifS     (c : ExprS) (s : ExprS) (n : ExprS)]
   [seqS    (e1 : ExprS) (e2 : ExprS)]
   [setS    (var : symbol) (arg : ExprS)]
-  [letS    (name : symbol) (arg : ExprS) (body : ExprS)]
   )
 
 ; agora é preciso arrumar desugar interpretador e parser.
@@ -35,12 +34,12 @@
 (define (desugar [as : ExprS]) : ExprC  
   (type-case ExprS as
     [numS    (n) (numC n)]
-    [idS     (s) (idC s)]
+    [varS     (s) (varC s)]
     [lamS    (a b)  (lamC a (desugar b))] ; idem
     [appS    (fun arg) (appC (desugar fun) (desugar arg))]
     [plusS   (l r) (plusC (desugar l) (desugar r))] 
     [multS   (l r) (multC (desugar l) (desugar r))]
-    [divS    (l r) (divC (desugar l) (desugar r))]
+    ;[divS    (l r) (divC (desugar l) (desugar r))]
     [bminusS (l r) (plusC (desugar l) (multC (numC -1) (desugar r)))]
     [uminusS (e)   (multC (numC -1) (desugar e))]
     [ifS     (c s n) (ifC (desugar c) (desugar s) (desugar n))]
@@ -133,7 +132,6 @@
   (type-case ExprC a
     [numC (n) (v*s (numV n) sto)]
     [varC (n)  (v*s (fetch (lookup n env) sto) sto)]  ; busca em cascata, env e em seguida no sto 
-    [idC  (n) (lookup n env)]
     [lamC (a b) (v*s (closV a b env) sto)] ; definição de função captura o environment
     [seqC (b1 b2) (type-case Result (interp b1 env sto)
                     [v*s (v-b1 s-b1) ; resultado e store retornado por b1
@@ -164,7 +162,7 @@
                       [v*s (v-r s-r)
                            (v*s (num* v-l v-r) s-r)])])]
 
-    [divC  (l r) (num/ (interp l env) (interp r env))]
+    ;[divC  (l r) (num/ (interp l env) (interp r env))]
 
     [ifC (c s n) (if (zero? (numV-n (v*s-v (interp c env sto)))) (interp n env sto) (interp s env sto))]
     
@@ -187,7 +185,7 @@
        (case (s-exp->symbol (first sl))
          [(+) (plusS (parse (second sl)) (parse (third sl)))]
          [(*) (multS (parse (second sl)) (parse (third sl)))]
-         [(/) (divS  (parse (second sl)) (parse (third sl)))]
+         ;[(/) (divS  (parse (second sl)) (parse (third sl)))]
          [(-) (bminusS (parse (second sl)) (parse (third sl)))]
          [(~) (uminusS (parse (second sl)))]
          [(func) (lamS (s-exp->symbol (second sl)) (parse (third sl)))] ; definição
@@ -201,4 +199,4 @@
 ; Facilitador
 (define (interpS [s : s-expression]) (interp (desugar (parse s)) mt-env mt-store))
 
-(interp (desugar (parse (read))) mt-env)
+(interpS (read))
