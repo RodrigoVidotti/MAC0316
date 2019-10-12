@@ -9,7 +9,7 @@
   [lamC (arg : symbol) (body : ExprC)] ; nomes não são mais necessários
   [appC (fun : ExprC) (arg : ExprC)] ; a aplicação recebe uma função
   [ifC   (condição : ExprC) (sim : ExprC) (não : ExprC)]
-  [seqC    (e1 : ExprC) (e2 : ExprC)]
+  [seqC    (b1 : ExprC) (b2 : ExprC)]
   [setC    (var : symbol) (arg : ExprC)]
   )
 
@@ -25,7 +25,7 @@
   [multS   (l : ExprS) (r : ExprS)]
   ;[divS    (l : ExprS) (r : ExprS)]
   [ifS     (c : ExprS) (s : ExprS) (n : ExprS)]
-  [seqS    (e1 : ExprS) (e2 : ExprS)]
+  [seqS    (b1 : ExprS) (b2 : ExprS)]
   [setS    (var : symbol) (arg : ExprS)]
   )
 
@@ -43,7 +43,7 @@
     [bminusS (l r) (plusC (desugar l) (multC (numC -1) (desugar r)))]
     [uminusS (e)   (multC (numC -1) (desugar e))]
     [ifS     (c s n) (ifC (desugar c) (desugar s) (desugar n))]
-    [seqS    (e1 e2)            (seqC (desugar e1) (desugar e2))]
+    [seqS    (b1 b2)            (seqC (desugar b1) (desugar b2))]
     [setS    (var expr)         (setC  var (desugar expr))]
     ))
 
@@ -199,4 +199,4 @@
 ; Facilitador
 (define (interpS [s : s-expression]) (interp (desugar (parse s)) mt-env mt-store))
 
-(interpS (read))
+(numV-n (v*s-v (interpS (read))))
