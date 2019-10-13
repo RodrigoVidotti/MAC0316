@@ -5,7 +5,7 @@
   [varC  (s : symbol)] ; não é mais identificador
   [plusC (l : ExprC) (r : ExprC)]
   [multC (l : ExprC) (r : ExprC)]
-  ;[divC  (l : ExprC) (r : ExprC)]
+  [divC  (l : ExprC) (r : ExprC)]
   [lamC (arg : symbol) (body : ExprC)] ; nomes não são mais necessários
   [appC (fun : ExprC) (arg : ExprC)] ; a aplicação recebe uma função
   [ifC   (condição : ExprC) (sim : ExprC) (não : ExprC)]
@@ -23,7 +23,7 @@
   [bminusS (l : ExprS) (r : ExprS)]
   [uminusS (e : ExprS)]
   [multS   (l : ExprS) (r : ExprS)]
-  ;[divS    (l : ExprS) (r : ExprS)]
+  [divS    (l : ExprS) (r : ExprS)]
   [ifS     (c : ExprS) (s : ExprS) (n : ExprS)]
   [seqS    (b1 : ExprS) (b2 : ExprS)]
   [setS    (var : symbol) (arg : ExprS)]
@@ -39,7 +39,7 @@
     [appS    (fun arg) (appC (desugar fun) (desugar arg))]
     [plusS   (l r) (plusC (desugar l) (desugar r))] 
     [multS   (l r) (multC (desugar l) (desugar r))]
-    ;[divS    (l r) (divC (desugar l) (desugar r))]
+    [divS    (l r) (divC (desugar l) (desugar r))]
     [bminusS (l r) (plusC (desugar l) (multC (numC -1) (desugar r)))]
     [uminusS (e)   (multC (numC -1) (desugar e))]
     [ifS     (c s n) (ifC (desugar c) (desugar s) (desugar n))]
@@ -162,7 +162,12 @@
                       [v*s (v-r s-r)
                            (v*s (num* v-l v-r) s-r)])])]
 
-    ;[divC  (l r) (num/ (interp l env) (interp r env))]
+    [divC (l r) 
+           (type-case Result (interp l env sto)
+               [v*s (v-l s-l)
+                    (type-case Result (interp r env s-l)
+                      [v*s (v-r s-r)
+                           (v*s (num/ v-l v-r) s-r)])])]
 
     [ifC (c s n) (if (zero? (numV-n (v*s-v (interp c env sto)))) (interp n env sto) (interp s env sto))]
     
@@ -185,7 +190,7 @@
        (case (s-exp->symbol (first sl))
          [(+) (plusS (parse (second sl)) (parse (third sl)))]
          [(*) (multS (parse (second sl)) (parse (third sl)))]
-         ;[(/) (divS  (parse (second sl)) (parse (third sl)))]
+         [(/) (divS  (parse (second sl)) (parse (third sl)))]
          [(-) (bminusS (parse (second sl)) (parse (third sl)))]
          [(~) (uminusS (parse (second sl)))]
          [(func) (lamS (s-exp->symbol (second sl)) (parse (third sl)))] ; definição
