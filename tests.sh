@@ -26,13 +26,4 @@ cat e8 | ./mcalc | ./direto
 echo "Teste 9"
 cat e9
 cat e9 | ./mcalc | ./direto
-echo "Teste 10"
-cat e10
-cat e10 | ./direto
-echo "Teste 11"
-cat e11
-cat e11 | ./direto
-echo "Teste 12"
-cat e12
-cat e12 | ./direto
 
