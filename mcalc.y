@@ -14,6 +14,11 @@ char *dup(char *orig) {
 	strcpy(res,orig);
 	return res;
 }
+char *ifStatement(char *cond, char *then, char *otherwise) {
+	char *res = malloc(strlen(cond)+strlen(then)+strlen(otherwise)+8);
+	sprintf(res, "(if %s %s %s)", cond, then, otherwise);
+	return res;
+}
 int yylex();
 void yyerror(char *);
 %}
@@ -23,7 +28,7 @@ void yyerror(char *);
 }
 
 %token	<val> NUM
-%token  ADD SUB MUL PRINT OPEN CLOSE
+%token  ADD SUB MUL PRINT OPEN CLOSE IF THEN ELSE
 %type	<val> exp 
 
 %left ADD SUB
@@ -39,6 +44,7 @@ input:
 ;
 
 exp: 			NUM 		{ $$ = dup($1); }
+		|		IF exp THEN exp ELSE exp { $$ = ifStatement($2, $4, $6);}
 		| 		exp ADD exp	{ $$ = oper('+', $1, $3);}
 		| 		exp SUB exp	{ $$ = oper('-', $1, $3);}
 		| 		exp MUL exp	{ $$ = oper('*', $1, $3);}

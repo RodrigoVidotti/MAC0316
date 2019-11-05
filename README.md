@@ -6,6 +6,12 @@ Autores: João Pedro Turri - 6805993;
          Rodrigo Vidotti de Souza - 10687896; 
          Vitor Carvalho de Melo - 10723753.
 
+## Declarações
+
+if: O condicional foi implementado aceitando 0 como falso e todo o resto como verdadeiro. Para utilizá-lo no nosso interpretador, devará seguir a seguinte formatação
+
+>if "condição" then "o que retorna quando verdadeiro" else "o que retorna quando falso"
+
 ## Testes EP1
 
 Para realização dos testes, basta compilar o projeto digitando o comando `make` e em seguida digitar `./tests.sh` na pasta que contem todos os arquivos. O teste é composto da seguinte forma:

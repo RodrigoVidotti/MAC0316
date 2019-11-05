@@ -19,13 +19,13 @@ cat e6
 cat e6 | ./mcalc | ./direto
 echo "Teste 7"
 cat e7
-cat e7 | ./direto
+cat e7 | ./mcalc | ./direto
 echo "Teste 8"
 cat e8
-cat e8 | ./direto
+cat e8 | ./mcalc | ./direto
 echo "Teste 9"
 cat e9
-cat e9 | ./direto
+cat e9 | ./mcalc | ./direto
 echo "Teste 10"
 cat e10
 cat e10 | ./direto
