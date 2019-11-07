@@ -28,7 +28,7 @@ void yyerror(char *);
 }
 
 %token	<val> NUM
-%token  ADD SUB MUL PRINT OPEN CLOSE IF THEN ELSE
+%token  ADD SUB MUL DIV PRINT OPEN CLOSE IF THEN ELSE
 %type	<val> exp 
 
 %left ADD SUB
